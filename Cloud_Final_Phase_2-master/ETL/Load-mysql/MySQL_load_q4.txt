@@ -1,0 +1,40 @@
+CREATE SCHEMA q3 CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+GRANT ALL ON q3.* TO q3@localhost IDENTIFIED BY ‘q3’;
+FLUSH PRIVILEGES;
+
+
+set character_set_connection = 'utf8mb4';
+set character_set_results = 'utf8mb4';
+set character_set_client = 'utf8mb4';
+set character_set_server = 'utf8mb4';
+alter database q3 default character set utf8mb4 COLLATE = utf8mb4_unicode_ci;
+SET NAMES 'utf8mb4';
+
+use q3;
+
+#You can easily confirm these settings work correctly:
+SHOW VARIABLES WHERE Variable_name LIKE 'character\_set\_%' OR Variable_name LIKE 'collation%';
+
+CREATE table retweet_body
+(
+time varchar(20) NOT NULL,
+location varchar(255) NOT NULL,
+rank INT NOT NULL,
+tag_id longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
+) default character set utf8mb4
+;
+
+ALTER TABLE retweet_body CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+
+REPAIR TABLE retweet_body;
+OPTIMIZE TABLE retweet_body;
+
+
+load data local infile './part-00000’ into table retweet_body Fields terminated by ‘#’ LINES TERMINATED BY '\n';
+
+mv retweet_body retweet_body.csv
+
+mysqlimport --fields-terminated-by=‘#’ --lines-terminated-by='\n' --local -u root -pr0204881738 --default-character-set=utf8mb4 tweet retweet_body.csv
+
+CREATE INDEX index_name ON retweet_body (time, location, rank) USING BTREE;

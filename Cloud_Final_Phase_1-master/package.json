@@ -1,0 +1,15 @@
+{
+  "name": "Cloud_Project_Phase1",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "team": "NoLife",
+  "dependencies": {
+    "express": "3.5.2",
+    "jade": "*",
+    "bignum": "*",
+    "mysql": "*"
+  }
+}

@@ -1,0 +1,12 @@
+# Note, these commands are required in each node of AWS EMR, including both master and cores
+
+1. install python-pip
+sudo apt-get -f install python-pip
+sudo yum install python-pip
+2. install happybase
+sudo pip install happybase
+3. make sure the happybase is installed 
+python -c 'import happybase'
+4. start thrift service 
+hbase-daemon.sh start thrift
+

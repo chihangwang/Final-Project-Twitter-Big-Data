@@ -1,0 +1,38 @@
+
+CREATE SCHEMA tweet CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+GRANT ALL ON tweet.* TO tweet@localhost IDENTIFIED BY 'tweet';
+FLUSH PRIVILEGES;
+
+
+set character_set_connection = 'utf8mb4';
+set character_set_results = 'utf8mb4';
+set character_set_client = 'utf8mb4';
+set character_set_server = 'utf8mb4';
+alter database tweet default character set utf8mb4 COLLATE = utf8mb4_unicode_ci;
+SET NAMES 'utf8mb4';
+
+use tweet;
+
+#You can easily confirm these settings work correctly:
+SHOW VARIABLES WHERE Variable_name LIKE 'character\_set\_%' OR Variable_name LIKE 'collation%';
+
+CREATE table tweetmessages
+(
+tweet_id varchar(30) NOT NULL,
+user_id BIGINT NOT NULL,
+creation_time varchar(30) NOT NULL,
+censored_message longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+score varchar(30) NOT NULL
+) default character set utf8mb4
+PARTITION BY HASH(user_id)
+PARTITIONS 113;
+
+ALTER TABLE tweetmessages CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+REPAIR TABLE tweetmessages;
+OPTIMIZE TABLE tweetmessages;
+
+
+mysqlimport --fields-terminated-by='<15619delimiter>' —local -u root -p123456 --default-character-set=utf8mb4 tweet tweetmessages.csv
+
+CREATE INDEX index_name ON tweetmessages (user_id)

@@ -1,0 +1,38 @@
+
+CREATE SCHEMA retweet CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+GRANT ALL ON retweet.* TO retweet@localhost IDENTIFIED BY ‘retweet’;
+FLUSH PRIVILEGES;
+
+
+set character_set_connection = 'utf8mb4';
+set character_set_results = 'utf8mb4';
+set character_set_client = 'utf8mb4';
+set character_set_server = 'utf8mb4';
+alter database retweet default character set utf8mb4 COLLATE = utf8mb4_unicode_ci;
+SET NAMES 'utf8mb4';
+
+use retweet;
+
+You can easily confirm these settings work correctly:
+SHOW VARIABLES WHERE Variable_name LIKE 'character\_set\_%' OR Variable_name LIKE 'collation%';
+
+CREATE table retweet_info
+(
+user_id BIGINT NOT NULL,
+retweet_id longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
+) default character set utf8mb4
+PARTITION BY HASH(user_id)
+PARTITIONS 113;
+
+ALTER TABLE retweet_info CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+
+REPAIR TABLE retweet_info;
+OPTIMIZE TABLE retweet_info;
+
+mv retweet_info retweet_info.csv
+
+
+mysqlimport --fields-terminated-by='\t' --lines-terminated-by='<end>\n' --local -u root -p123456 --default-character-set=utf8mb4 retweet retweet_info.csv
+
+CREATE INDEX index_name ON retweet_info (user_id) USING HASH;

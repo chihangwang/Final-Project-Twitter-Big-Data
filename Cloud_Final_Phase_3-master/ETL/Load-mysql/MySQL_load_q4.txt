@@ -1,0 +1,31 @@
+
+use tweet;
+
+#You can easily confirm these settings work correctly:
+SHOW VARIABLES WHERE Variable_name LIKE 'character\_set\_%' OR Variable_name LIKE 'collation%';
+
+CREATE table retweet_body
+(
+time varchar(20) NOT NULL,
+location varchar(100) NOT NULL,
+rank INT NOT NULL,
+tag_id longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
+) default character set utf8mb4
+PARTITION BY HASH(rank)
+PARTITIONS 113;
+
+
+ALTER TABLE retweet_body CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+
+REPAIR TABLE retweet_body;
+OPTIMIZE TABLE retweet_body;
+
+
+load data local infile './part-00000’ into table retweet_body Fields terminated by ‘#’ LINES TERMINATED BY '\n';
+
+mv retweet_body retweet_body.csv
+
+mysqlimport --fields-terminated-by=‘#’ --lines-terminated-by='\n' --local -u root -p123456 --default-character-set=utf8mb4 tweet retweet_body.csv
+
+CREATE INDEX index_name4 ON retweet_body (time, location, rank) USING BTREE;
